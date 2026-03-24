@@ -24,39 +24,14 @@
     <div id="history"></div>
 </div>
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>ReadifyAI</title>
-    <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
-
-<div class="container">
-    <h1>🧠 ReadifyAI</h1>
-
-    <!-- Mode Toggle -->
-    <div class="toggle">
-        <button onclick="setMode('chat')" id="chatBtn">Chat</button>
-        <button onclick="setMode('analyze')" id="analyzeBtn" class="active">Analyze</button>
-    </div>
-
-    <textarea id="input" placeholder="Paste text here..."></textarea>
-
-    <button onclick="handleAction()" id="btn">Analyze</button>
-
-    <div id="output"></div>
-
-    <div id="history"></div>
-</div>
-
 <script>
 let mode = "analyze";
 
 function setMode(m) {
     mode = m;
 
-    document.getElementById("btn").innerText = m === "chat" ? "Send" : "Analyze";
+    let btn = document.getElementById("btn");
+    btn.innerText = m === "chat" ? "Send" : "Analyze";
 
     document.getElementById("chatBtn").classList.remove("active");
     document.getElementById("analyzeBtn").classList.remove("active");
@@ -65,47 +40,47 @@ function setMode(m) {
 }
 
 function handleAction() {
-    if (mode === "chat") sendMessage();
-    else analyze();
+    if (mode === "chat") {
+        sendMessage();
+    } else {
+        analyze();
+    }
 }
 
 function analyze() {
     let btn = document.getElementById("btn");
+    let inputBox = document.getElementById("input");
+
+    let text = inputBox.value;
+
+    if (!text.trim()) return;
+
     btn.innerText = "Analyzing...";
     btn.disabled = true;
 
-    let text = document.getElementById("input").value;
-
     fetch("/analyze", {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({text: text})
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ text: text })
     })
     .then(res => res.json())
     .then(data => {
-        let result = data.result || data.error;
+        let result = data.result || data.error || "No response";
 
-        document.getElementById("output").innerText = result;
-
-        // ✅ IMPORTANT FIX
-        btn.innerText = "Analyze";
-        btn.disabled = false
-        })
-    .catch(err => {
-        console.log(err);
-
-        // Verdict coloring
+        // Color logic
         let color = "white";
         if (result.includes("Likely Real")) color = "lightgreen";
         if (result.includes("Suspicious")) color = "red";
 
-        // Confidence bar
+        // Confidence
         let match = result.match(/Confidence:\s*(\d+)/);
         let percent = match ? match[1] : 50;
 
         document.getElementById("output").innerHTML = `
             <div style="color:${color}">
-                ${result.replace(/### (.*?)/g, "<h3>$1</h3>").replace(/\n/g,"<br>")}
+                ${result.replace(/\n/g, "<br>")}
             </div>
             <div class="bar">
                 <div class="fill" style="width:${percent}%"></div>
@@ -113,7 +88,16 @@ function analyze() {
             <p>${percent}% Confidence</p>
         `;
 
-        saveHistory(text, result);
+        saveHistory(text);
+
+        inputBox.value = "";
+
+        btn.innerText = "Analyze";
+        btn.disabled = false;
+    })
+    .catch(err => {
+        console.log(err);
+        document.getElementById("output").innerText = "Error occurred";
 
         btn.innerText = "Analyze";
         btn.disabled = false;
@@ -121,21 +105,30 @@ function analyze() {
 }
 
 function sendMessage() {
-    let text = document.getElementById("input").value;
+    let inputBox = document.getElementById("input");
+    let text = inputBox.value;
+
+    if (!text.trim()) return;
 
     fetch("/chat", {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({text: text})
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ text: text })
     })
     .then(res => res.json())
     .then(data => {
-        document.getElementById("output").innerText = data.result;
-        saveHistory(text, data.result);
+        document.getElementById("output").innerText = data.result || "No response";
+        saveHistory(text);
+        inputBox.value = "";
+    })
+    .catch(err => {
+        console.log(err);
     });
 }
 
-function saveHistory(input, output) {
+function saveHistory(input) {
     let history = document.getElementById("history");
 
     let item = document.createElement("div");
