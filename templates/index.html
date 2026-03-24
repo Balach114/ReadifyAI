@@ -24,6 +24,32 @@
     <div id="history"></div>
 </div>
 
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ReadifyAI</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>🧠 ReadifyAI</h1>
+
+    <!-- Mode Toggle -->
+    <div class="toggle">
+        <button onclick="setMode('chat')" id="chatBtn">Chat</button>
+        <button onclick="setMode('analyze')" id="analyzeBtn" class="active">Analyze</button>
+    </div>
+
+    <textarea id="input" placeholder="Paste text here..."></textarea>
+
+    <button onclick="handleAction()" id="btn">Analyze</button>
+
+    <div id="output"></div>
+
+    <div id="history"></div>
+</div>
+
 <script>
 let mode = "analyze";
 
@@ -58,6 +84,15 @@ function analyze() {
     .then(res => res.json())
     .then(data => {
         let result = data.result || data.error;
+
+        document.getElementById("output").innerText = result;
+
+        // ✅ IMPORTANT FIX
+        btn.innerText = "Analyze";
+        btn.disabled = false
+        })
+    .catch(err => {
+        console.log(err);
 
         // Verdict coloring
         let color = "white";
