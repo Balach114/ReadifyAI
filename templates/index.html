@@ -9,13 +9,16 @@
 <div class="container">
     <h1>🧠 ReadifyAI</h1>
 
-    <!-- Mode Toggle -->
+    <!-- Modes -->
     <div class="toggle">
         <button onclick="setMode('chat')" id="chatBtn">Chat</button>
-        <button onclick="setMode('analyze')" id="analyzeBtn" class="active">Analyze</button>
+        <button onclick="setMode('analyze')" id="analyzeBtn" class="active">Text</button>
+        <button onclick="setMode('news')" id="newsBtn">News</button>
+        <button onclick="setMode('ai_detection')" id="ai_detectionBtn">AI Detect</button>
+        <button onclick="setMode('claim')" id="claimBtn">Claim</button>
     </div>
 
-    <textarea id="input" placeholder="Paste text here..."></textarea>
+    <textarea id="input" placeholder="Enter your text..."></textarea>
 
     <button onclick="handleAction()" id="btn">Analyze</button>
 
@@ -30,101 +33,66 @@ let mode = "analyze";
 function setMode(m) {
     mode = m;
 
-    let btn = document.getElementById("btn");
-    btn.innerText = m === "chat" ? "Send" : "Analyze";
+    document.getElementById("btn").innerText =
+        (m === "chat") ? "Send" : "Analyze";
 
-    document.getElementById("chatBtn").classList.remove("active");
-    document.getElementById("analyzeBtn").classList.remove("active");
+    // reset buttons
+    document.querySelectorAll(".toggle button").forEach(btn => {
+        btn.classList.remove("active");
+    });
 
     document.getElementById(m + "Btn").classList.add("active");
 }
 
 function handleAction() {
-    if (mode === "chat") {
-        sendMessage();
-    } else {
-        analyze();
-    }
+    if (mode === "chat") sendMessage();
+    else analyze();
 }
 
 function analyze() {
     let btn = document.getElementById("btn");
-    let inputBox = document.getElementById("input");
-
-    let text = inputBox.value;
-
-    if (!text.trim()) return;
-
-    btn.innerText = "Analyzing...";
+    btn.innerText = "Processing...";
     btn.disabled = true;
+
+    let text = document.getElementById("input").value;
 
     fetch("/analyze", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ text: text })
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            text: text,
+            mode: mode
+        })
     })
     .then(res => res.json())
     .then(data => {
-        let result = data.result || data.error || "No response";
-
-        // Color logic
-        let color = "white";
-        if (result.includes("Likely Real")) color = "lightgreen";
-        if (result.includes("Suspicious")) color = "red";
-
-        // Confidence
-        let match = result.match(/Confidence:\s*(\d+)/);
-        let percent = match ? match[1] : 50;
-
-        document.getElementById("output").innerHTML = `
-            <div style="color:${color}">
-                ${result.replace(/\n/g, "<br>")}
-            </div>
-            <div class="bar">
-                <div class="fill" style="width:${percent}%"></div>
-            </div>
-            <p>${percent}% Confidence</p>
-        `;
-
-        saveHistory(text);
-
-        inputBox.value = "";
+        document.getElementById("output").innerText =
+            data.result || data.error;
 
         btn.innerText = "Analyze";
         btn.disabled = false;
+
+        saveHistory(text);
     })
     .catch(err => {
         console.log(err);
-        document.getElementById("output").innerText = "Error occurred";
-
         btn.innerText = "Analyze";
         btn.disabled = false;
     });
 }
 
 function sendMessage() {
-    let inputBox = document.getElementById("input");
-    let text = inputBox.value;
-
-    if (!text.trim()) return;
+    let text = document.getElementById("input").value;
 
     fetch("/chat", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ text: text })
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({text: text})
     })
     .then(res => res.json())
     .then(data => {
-        document.getElementById("output").innerText = data.result || "No response";
+        document.getElementById("output").innerText = data.result;
         saveHistory(text);
-        inputBox.value = "";
-    })
-    .catch(err => {
-        console.log(err);
     });
 }
 
