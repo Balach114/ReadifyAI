@@ -22,12 +22,13 @@
 
     <button onclick="handleAction()" id="btn">Analyze</button>
 
-    <div id="output"></div>
+    <div id="chatBox"></div>
 
     <div id="history"></div>
 </div>
 
 <script>
+
 let mode = "analyze";
 
 function setMode(m) {
@@ -66,8 +67,8 @@ function analyze() {
     })
     .then(res => res.json())
     .then(data => {
-        document.getElementById("output").innerText =
-            data.result || data.error;
+       addMessage(text, "user");
+       addMessage(data.result, "ai");
 
         btn.innerText = "Analyze";
         btn.disabled = false;
@@ -91,7 +92,8 @@ function sendMessage() {
     })
     .then(res => res.json())
     .then(data => {
-        document.getElementById("output").innerText = data.result;
+        addMessage(text, "user");
+        addMessage(data.result, "ai");
         saveHistory(text);
     });
 }

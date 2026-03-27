@@ -86,3 +86,32 @@ textarea {
     border-radius: 6px;
     font-size: 13px;
 }
+
+/* CHAT BOX */
+#chatBox {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* MESSAGE BUBBLES */
+.message {
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 70%;
+}
+
+/* USER */
+.message.user {
+    align-self: flex-end;
+    background: #2563eb;
+}
+
+/* AI */
+.message.ai {
+    align-self: flex-start;
+    background: #1e293b;
+}
