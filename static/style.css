@@ -93,8 +93,13 @@ textarea {
     display: flex;
     flex-direction: column;
     gap: 10px;
+
     max-height: 400px;
     overflow-y: auto;
+
+    background: #020617;
+    padding: 10px;
+    border-radius: 10px;
 }
 
 /* MESSAGE BUBBLES */
@@ -102,6 +107,8 @@ textarea {
     padding: 10px;
     border-radius: 10px;
     max-width: 70%;
+    color: white;   /* 🔥 VERY IMPORTANT */
+    font-size: 14px;
 }
 
 /* USER */
