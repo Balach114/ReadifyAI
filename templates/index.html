@@ -51,11 +51,16 @@ function handleAction() {
 }
 
 function analyze() {
-    let btn = document.getElementById("btn");
-    btn.innerText = "Processing...";
-    btn.disabled = true;
-
     let text = document.getElementById("input").value;
+
+if (!text.trim()) {
+    alert("Please enter text");
+    return;
+}
+    let btn = document.getElementById("btn");
+    btn.innerText = (mode === "chat") ? "Send" : "Analyze";
+    btn.disabled = false;
+    
 
     fetch("/analyze", {
         method: "POST",
@@ -67,8 +72,10 @@ function analyze() {
     })
     .then(res => res.json())
     .then(data => {
+       document.getElementById("input").value = "";
        addMessage(text, "user");
        addMessage(data.result, "ai");
+       
 
         btn.innerText = "Analyze";
         btn.disabled = false;
@@ -84,7 +91,10 @@ function analyze() {
 
 function sendMessage() {
     let text = document.getElementById("input").value;
-
+     if (!text.trim()) {
+    alert("Please enter text");
+    return;
+}
     fetch("/chat", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
@@ -92,6 +102,7 @@ function sendMessage() {
     })
     .then(res => res.json())
     .then(data => {
+        document.getElementById("input").value = "";
         addMessage(text, "user");
         addMessage(data.result, "ai");
         saveHistory(text);
@@ -104,7 +115,10 @@ function addMessage(text, sender) {
     message.className = "message " + sender;
     message.innerText = text;
     chatBox.appendChild(message);
-    chatBox.scrollTop = chatBox.scrollHeight;
+    chatBox.scrollTo({
+    top: chatBox.scrollHeight,
+    behavior: "smooth"
+});
 }
 
 function saveHistory(input) {
