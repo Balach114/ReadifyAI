@@ -94,12 +94,22 @@ textarea {
     flex-direction: column;
     gap: 10px;
 
+    min-height: 180px;
     max-height: 400px;
     overflow-y: auto;
 
     background: #020617;
     padding: 10px;
     border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+#chatBox:empty::before {
+    content: "Chat messages appear here when you use Chat mode.";
+    color: #94a3b8;
+    font-size: 14px;
+    padding: 10px;
+    display: block;
 }
 
 /* MESSAGE BUBBLES */

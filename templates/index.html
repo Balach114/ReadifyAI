@@ -98,6 +98,15 @@ function sendMessage() {
     });
 }
 
+function addMessage(text, sender) {
+    let chatBox = document.getElementById("chatBox");
+    let message = document.createElement("div");
+    message.className = "message " + sender;
+    message.innerText = text;
+    chatBox.appendChild(message);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
 function saveHistory(input) {
     let history = document.getElementById("history");
 
